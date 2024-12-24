@@ -9,6 +9,7 @@ numpy
 pandas
 shapely
 matplotlib
+google-cloud-vision
 
 # OCR Libraries
 pytesseract
