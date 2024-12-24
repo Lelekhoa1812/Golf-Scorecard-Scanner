@@ -14,6 +14,27 @@ This solution:
 
 ---
 
+## **Project Constraints**
+1. The scorecards primarily contain handwritten information that needs to be accurately interpreted.
+
+2. Symbols, such as a triangle (△) or circle (〇), have specific meanings: an empty triangle represents a value of -1, while a triangle containing a number (e.g., 2 or -2) reflects the explicitly stated value. Circles indicate positive values regardless of whether the number is inside or outside.
+
+3. Slots that are completely blackened, deleted, or scratched out should be treated as empty fields.
+
+4. Numbers that have been hand-corrected, such as changing a 1 to a 7, should be detected and interpreted correctly.
+
+5. Each golf course or location may have distinct scorecard formats, affecting the layout of fields and requiring adaptable contour detection and grid labeling.
+
+6. Some locations have multiple courses, such as "Course A", "Course B", or names like "West", "East", "South", or "North". The system must identify which course corresponds to the entered values for each user.
+
+7. Scorecards typically list multiple users, and the system must detect and assign names and corresponding scores accurately for each individual.
+
+8. Additional fields may exist on certain scorecards, such as "Caddie Name" or "HDC (Handicap)", and column headers might vary (e.g., "Total" could be labeled as "Net"). These variations must be accounted for during processing.
+
+9. The text on the scorecards is written in Vietnamese, necessitating the use of the VietOCR model for accurate text recognition.
+
+---
+
 ## **1. Setting Up the Environment**
 
 ### Install Required Libraries
