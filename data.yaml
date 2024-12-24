@@ -1,0 +1,5 @@
+train: /path/to/train/images
+val: /path/to/val/images
+
+nc: 5  # Number of classes
+names: ["PlayerName", "HoleNumber", "Score", "Total", "CaddieName"]
