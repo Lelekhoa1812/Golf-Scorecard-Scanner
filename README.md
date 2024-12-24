@@ -50,27 +50,34 @@ pip install google-cloud-storage google-cloud-vision label-studio albumentations
 pip install shapely matplotlib
 ```
 
+Install all the required libraries with the following command:  
+```bash
+pip install -r requirements.txt
+```
+
 ---
 
 ## **2. Directory Structure**
 Organize the project as follows:
 ```plaintext
 GolfScorecardScanner/
-├── data/                # Input images and labeled datasets
-│   ├── images/          # Scorecard images
-│   ├── labels/          # YOLO OBB annotations (e.g., bounding boxes)
-├── models/              # Trained models
+├── data/
+│   ├── images/          # Input scorecard images
+│   ├── labels/          # YOLO annotations for training
+├── models/              # Pre-trained models
+│   ├── yolo_obb.pt      # YOLOv8 OBB model
+│   ├── vietocr_weights.pth  # VietOCR weights
 ├── output/              # JSON output files
 ├── scripts/             # Scripts for detection, recognition, JSON generation
 │   ├── detect_fields.py
 │   ├── recognize_text.py
 │   ├── generate_json.py
 │   ├── parse_symbols.py
+│   ├── utils.py             # Utility functions
 ├── train/               # Training scripts and configurations
 │   ├── yolo_train.py
 ├── templates/           # Template-matching logic for dynamic field mapping
-├── utils.py             # Utility functions
-├── main.py              # Prediction BE
+├── main.py              # Main pipeline script
 └── app.py               # Flask application
 ```
 

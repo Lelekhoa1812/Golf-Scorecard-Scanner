@@ -1,0 +1,29 @@
+# Core Libraries
+torch
+torchvision
+torchaudio
+ultralytics
+opencv-python
+pillow
+numpy
+pandas
+shapely
+matplotlib
+
+# OCR Libraries
+pytesseract
+vietocr
+
+# Flask for API
+flask
+flask-restful
+
+# Google Cloud for Flash API
+google-cloud-vision
+google-cloud-storage
+
+# Label Studio for Annotation
+label-studio
+
+# Data Augmentation
+albumentations
