@@ -1,0 +1,4 @@
+lr0: 0.01  # Initial learning rate
+momentum: 0.937
+weight_decay: 0.0005
+...

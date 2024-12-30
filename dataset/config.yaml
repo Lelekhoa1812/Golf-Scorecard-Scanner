@@ -1,0 +1,14 @@
+# Train and validation image directories
+train: images/train
+val: images/val
+
+# List of classes
+names:
+  0: PlayerName
+  1: CourseName
+  2: Score
+  3: Total
+  4: CaddieName
+  5: HoleNumber
+  6: HCP
+  7: Card

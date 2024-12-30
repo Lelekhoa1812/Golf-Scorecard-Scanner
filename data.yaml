@@ -1,5 +1,5 @@
-train: /path/to/train/images
-val: /path/to/val/images
+train: data/train/images
+val: data/val/images
 
-nc: 5  # Number of classes
-names: ["PlayerName", "HoleNumber", "Score", "Total", "CaddieName"]
+nc: 6  # Number of classes (e.g., PlayerName, CourseName, etc.)
+names: ["PlayerName", "CourseName", "HoleNumber", "Score", "Total", "CaddieName"]
