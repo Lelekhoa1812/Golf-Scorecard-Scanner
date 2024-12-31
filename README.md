@@ -238,7 +238,7 @@ Average processing time can be varied based on your device, prediction on a Macb
 
 #### Prediction Example:
 **YOLO v8l on IMG_9475:**  
-<img src="imgsrc/IMG_9475_detection_on_YOLOv8l.png" alt="YOLO v8l on IMG_9475" style="width: 80%; max-width: 1000px;">  
+<img src="imgsrc/IMG_9475_detection_on_YOLOv8l.png" alt="YOLO v8l Field Detection on IMG_9475" style="width: 80%; max-width: 1000px;">  
 Example Output:    
 ```
 image 1/1 /Users/khoale/Downloads/GolfScoreCardScanner/dataset/images/train/IMG_9475.JPG: 480x640 4 PlayerNames, 2 CourseNames, 8 Scores, 8 Totals, 2 HoleNumbers, 1663.9ms
@@ -246,7 +246,7 @@ Speed: 14.6ms preprocess, 1663.9ms inference, 3.8ms postprocess per image at sha
 ```  
 
 **YOLO v11l on IMG_9475:**  
-<img src="imgsrc/IMG_9475_detection_on_YOLOv11l.png" alt="YOLO v11l on IMG_9475" style="width: 80%; max-width: 1000px;">  
+<img src="imgsrc/IMG_9475_detection_on_YOLOv11l.png" alt="YOLO v11l Field Detection on IMG_9475" style="width: 80%; max-width: 1000px;">  
 Example Output:  
 ```
 image 1/1 /Users/khoale/Downloads/GolfScoreCardScanner/dataset/images/train/IMG_9475.JPG: 480x640 4 PlayerNames, 2 CourseNames, 8 Scores, 8 Totals, 2 HoleNumbers, 772.2ms
@@ -261,14 +261,53 @@ Speed: 8.3ms preprocess, 772.2ms inference, 1.9ms postprocess per image at shape
 ### Script
 `recognize_text.py`:
 ```python
-from vietocr.tool.predictor import Predictor
-from vietocr.tool.config import Cfg
+def load_vietocr_model(vietocr_model_path):
+    """Load VietOCR model for text recognition."""
+    config = Cfg.load_config_from_name('vgg_transformer')
+    config['weights'] = vietocr_model_path
+    config['device'] = 'cpu'  # Change to 'cuda' if GPU is available
+    config['predictor']['beamsearch'] = False
+    return Predictor(config)
 
-def recognize_text(image_path):
-    config = Cfg.load_config_from_name("vgg_transformer")
-    model = Predictor(config)
-    return model.predict(image_path)
+def recognize_text(image, model):
+    """Recognize text from an image."""
+    pil_image = Image.fromarray(image)
+    return model.predict(pil_image)
 ```
+
+**vgg_transformer model on predicting IMG_9475 with YOLOv11l:**  
+Debugged values:  
+```
+Detected field: CourseName, Confidence: 0.91, Text: ĐƯỜNG QUẾ (A)/CINNAMON COURSE (A)
+Detected field: PlayerName, Confidence: 0.90, Text: Ning
+Detected field: CourseName, Confidence: 0.89, Text: ĐƯỜNG CỌ (B)/PALM COURSE (B)
+Detected field: Total, Confidence: 0.89, Text: 0
+Detected field: Total, Confidence: 0.89, Text: 2
+Detected field: Total, Confidence: 0.89, Text: 2
+Detected field: Total, Confidence: 0.89, Text: 0
+Detected field: Total, Confidence: 0.88, Text: 13
+Detected field: PlayerName, Confidence: 0.88, Text: KH/X
+Detected field: HoleNumber, Confidence: 0.88, Text: DƯƠNG QUIF NAMON COURSE VIÊN 5
+Detected field: HoleNumber, Confidence: 0.88, Text: DUONOCOLFO/MOURSE36/4.5
+Detected field: Total, Confidence: 0.88, Text: 15
+Detected field: PlayerName, Confidence: 0.87, Text: KON
+Detected field: Total, Confidence: 0.87, Text: A1
+Detected field: Total, Confidence: 0.86, Text: 18
+Detected field: Score, Confidence: 0.84, Text: 122311Z25
+Detected field: Score, Confidence: 0.83, Text: 12203217
+Detected field: Score, Confidence: 0.83, Text: vosuates
+Detected field: Score, Confidence: 0.83, Text: 030021246
+Detected field: PlayerName, Confidence: 0.82, Text: OLUGIC
+Detected field: Score, Confidence: 0.82, Text: 037321240
+Detected field: Score, Confidence: 0.75, Text: 03602121202122222
+Detected field: Score, Confidence: 0.67, Text: 02124202122247
+Detected field: Score, Confidence: 0.40, Text: oss10012
+```   
+
+Visualization:  
+<img src="imgsrc/IMG_9475_text_on_YOLOv11l.png" alt="vgg_transformer with YOLOv11l Text Prediction on IMG_9475" style="width: 80%; max-width: 1000px;">  
+
+**Evaluation:** Predicted text may not being correct due to user poor handwriting. Improve handwriting for better accuracy.  
 
 ---
 

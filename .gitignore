@@ -1,2 +1,5 @@
 # Ignore the key folder
 key/
+
+# Ignore the models folder
+models/
