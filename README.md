@@ -135,6 +135,80 @@ yolo task=detect mode=train data=dataset/config.yaml model=yolov8l.pt epochs=100
 ```
 You can change configs from the pre-configured options below:
 
+### **YOLOv8l:**  
+#### a. Configuration:  
+'''plaintext
+batch: 32                 # Specific batch size
+cache: "ram"              # Use RAM for caching
+device: "0"               # Use the first GPU
+epochs: 300               # Train for more epochs
+imgsize: 640              
+patience: 30              # Early stopping after 30 epochs of no improvement (optional)
+lr0: 0.001                # Learning rate for stability
+optimizer: "AdamW"        # Use AdamW optimizer
+augment: True             # Enable advanced augmentations
+weights: "yolov11l.pt"     # Start with pretrained weights
+'''
+
+#### b. Model Evaluation:  
+<img src="imgsrc/YOLOv8l.png" alt="YOLO v8 Large Model Evaluation" style="width: 70%; max-width: 1000px;">    
+
+---
+
+### **YOLOv11l**
+#### a. Configuration:  
+'''plaintext
+batch: 32                 # Specific batch size
+cache: "ram"              # Use RAM for caching
+device: "0"               # Use the first GPU
+epochs: 300               # Train for more epochs
+imgsize: 640              
+patience: 30              # Early stopping after 30 epochs of no improvement (optional)
+lr0: 0.001                # Learning rate for stability
+optimizer: "AdamW"        # Use AdamW optimizer
+augment: True             # Enable advanced augmentations
+weights: "yolov11l.pt"     # Start with pretrained weights
+'''
+
+#### b. Model Evaluation:  
+<img src="imgsrc/YOLOv11l.png" alt="YOLO v11 Large Model Evaluation" style="width: 70%; max-width: 1000px;">   
+
+---
+
+### Reflection on the Evaluation Graphs for YOLOv8l and YOLOv11l
+
+#### a. **Comparison of mAP50 and mAP50-95**
+   - **YOLOv8l:**
+     - The mAP50 (blue line) shows a steady increase and stabilizes near 0.9 after 50 epochs. 
+     - mAP50-95 (orange line) has a slower growth curve and plateaus around 0.65 after 90 epochs. This reflects moderate performance across varying IoU thresholds.
+   - **YOLOv11l:**
+     - The mAP50 reaches a higher value (~0.93) and stabilizes earlier compared to YOLOv8l, indicating stronger performance for IoU=0.5.
+     - mAP50-95 grows more steadily and achieves a final value of ~0.8, significantly outperforming YOLOv8l. This suggests YOLOv11l generalizes better across different IoU thresholds.
+
+#### b. **Precision and Recall**
+   - **YOLOv8l:**
+     - Precision (cyan line) increases steadily but fluctuates after epoch 30, stabilizing near 0.85. 
+     - Recall (magenta line) grows steadily and stabilizes close to 0.87, indicating a balanced performance between finding true positives and avoiding false negatives.
+   - **YOLOv11l:**
+     - Precision stabilizes at a higher level (~0.9) compared to YOLOv8l. The consistent high precision shows YOLOv11l is more confident in its predictions.
+     - Recall is slightly lower (~0.88), but it consistently improves over the epochs, indicating the model captures most relevant instances effectively.
+
+#### c. **Training Epochs and Stability**
+   - **YOLOv8l:**
+     - Stabilizes after 70 epochs, but precision and mAP50-95 plateau at lower values than YOLOv11l, suggesting potential underfitting for complex data structures.
+   - **YOLOv11l:**
+     - Requires more training epochs (~150-200) to stabilize. However, the final metrics (mAP50, mAP50-95, precision, recall) are significantly higher, demonstrating better learning and performance.
+
+#### d. **Model Complexity and Generalization**
+   - YOLOv8l is less complex, requiring fewer epochs to train but sacrifices generalization (lower mAP50-95 and precision).
+   - YOLOv11l, with higher complexity, learns more intricate features, evident in higher precision and mAP50-95, making it more suitable for nuanced and varied datasets like golf scorecards.
+
+#### e. **Recommendations**
+   - **YOLOv8l:** Suitable for faster inference with acceptable accuracy. Use for real-time applications or less complex layouts.
+   - **YOLOv11l:** Better for high-accuracy requirements, especially when handling multiple templates or challenging layouts, but may require more computational resources and training time.
+
+In conclusion, the evaluation graphs indicate that while YOLOv8l provides faster convergence and decent accuracy, YOLOv11l outperforms it in precision, recall, and generalization, making it the preferred model for complex field detection tasks.
+
 ---
 
 ## **5. Field Detection Script**
