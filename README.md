@@ -1,16 +1,17 @@
-#  Golf Scorecard Scanner
+# Golf Scorecard Scanner
 
-This solution incorporates **YOLOv8 OBB (Oriented Bounding Box)** for flexible field detection, **VietOCR** for text recognition, and **Flash API by Google** for data labeling. Additionally, we'll discuss handling complexities like symbols, multiple users, and varying templates.
+This solution uses **YOLOv8 and YOLOv11** for field detection, **VietOCR** for text recognition, and **LabelMe** for annotation. It processes complex golf scorecard layouts and structures them into a JSON file for further analysis. Optionally, it incorporate Flash Vision API for direct parsing of data reading in case data cannot be accurate or sustainable.
 
 ---
 
 ## **Project Overview**
 This solution:
-1. Detects handwritten fields using **YOLO OBB**.
+1. Detects fields (e.g., PlayerName, CourseName, Score ...) using **YOLOv8** and **YOLOv11** large models.
 2. Recognizes text using **VietOCR** tailored for Vietnamese handwriting.
 3. Handles multiple layouts/templates dynamically.
 4. Extracts structured data and exports it to a JSON file.
-5. Uses **Google's Flash API** for large-scale annotation of images.
+5. Uses **LabelMe** for annotating golf scorecard fields.  
+**Optionally:** Use Flash Vision API with provided script and instruction in this project for direct data extraction.
 
 ---
 
@@ -29,7 +30,7 @@ This solution:
 
 7. Scorecards typically list multiple users, and the system must detect and assign names and corresponding scores accurately for each individual.
 
-8. Additional fields may exist on certain scorecards, such as "Caddie Name" or "HDC (Handicap)", and column headers might vary (e.g., "Total" could be labeled as "Net"). These variations must be accounted for during processing.
+8. Additional fields may exist on certain scorecards, such as "Hole" or "HDC (Handicap)", and column headers might vary (e.g., "Total", "Net"). These variations must be accounted for during processing.
 
 9. The text on the scorecards is written in Vietnamese, necessitating the use of the VietOCR model for accurate text recognition.
 
@@ -38,19 +39,7 @@ This solution:
 ## **1. Setting Up the Environment**
 
 ### Install Required Libraries
-```bash
-# Core Libraries
-pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
-pip install ultralytics opencv-python pillow numpy pandas pytesseract vietocr
-
-# Flash API and Labeling
-pip install google-cloud-storage google-cloud-vision label-studio albumentations flask flask-restful
-
-# Additional Dependencies for YOLOv8 OBB
-pip install shapely matplotlib
-```
-
-Install all the required libraries with the following command:  
+Install all required libraries with:
 ```bash
 pip install -r requirements.txt
 ```
@@ -61,46 +50,134 @@ pip install -r requirements.txt
 Organize the project as follows:
 ```plaintext
 GolfScorecardScanner/
-├── data/
-│   ├── images/          # Input scorecard images
-│   ├── labels/          # YOLO annotations for training
+├── dataset/
+│   ├── crop/
+│       ├── PlayerName/
+│       ├── CourseName/
+│       ├── Score/
+│       ├── ... (other field labels that are cropped)
+│   ├── labels/          # LabelMe JSON files
+│       ├── train/
+│       ├── val/
+│   ├── images/          # Source images
+│       ├── train/
+│       ├── val/
+│   ├── config.yaml      # YOLO configuration file
 ├── models/              # Pre-trained models
-│   ├── yolo_obb.pt      # YOLOv8 OBB model
+│   ├── yolov8l.pt       # YOLOv8 large model
+│   ├── yolov11l.pt      # YOLOv11 large model
 │   ├── vietocr_weights.pth  # VietOCR weights
 ├── output/              # JSON output files
-├── scripts/             # Scripts for detection, recognition, JSON generation
+├── scripts/             # Detection, recognition, and export scripts (UI)
 │   ├── detect_fields.py
 │   ├── recognize_text.py
 │   ├── generate_json.py
-│   ├── parse_symbols.py
-│   ├── utils.py             # Utility functions
-├── train/               # Training scripts and configurations
+│   ├── utils.py
+├── train/               # YOLO OBB Training scripts and configurations
 │   ├── yolo_train.py
-├── templates/           # Template-matching logic for dynamic field mapping
+│   ├── hyp.yaml
+├── labelling/           # Scripts aid in Flash Vision API detection
+│   ├── thicken_grid.py  # Script that thicken the grid for better data extraction
+│   ├── auto_label.py    # Script to extract data from input images into JSON using Flash Vision API
+│   ├── convert_json_to_yolo.py # Script directly convert necessitated fields from JSON file into txt format for YOLO training
+│   ├── visualize_labels_from_json.py # Script visualize debug image detected from Flash Vision JSON file
+│   ├── visualize_labels_from_json.py # Script visualize debug image detected from YOLO txt conversion
+├── key/                 # Your credential key from Google Flash Vision
+├── data/                # Input and output directory from using Flash Vision
+│   ├── train/           # All be used for training
+│       ├── debug_label/ # Visualized images
+│       ├── images/      # Source of input
+│       ├── labels/      # Output labels in JSON
+│       ├── yolo_labels/ # Output labels in txt
+│       ├── processed_images/ # Output img with grid thickened
 ├── main.py              # Main pipeline script
-└── app.py               # Flask application
 ```
 
 ---
 
-## **3. Handling Constraints**
+## **3. Annotating Data with LabelMe**
+1. Use **LabelMe** for annotating fields in golf scorecards:
+   ```bash
+   labelme dataset/src/
+   ```
+2. Save annotations in `dataset/labels/` as JSON files.
 
-### **Handwritten Text (Constraint 1)**
-
-- **VietOCR** is used for recognizing Vietnamese handwriting.
-- Preprocessing involves:
-  1. Converting images to grayscale.
-  2. Binarization using adaptive thresholding.
+3. Convert LabelMe annotations to YOLO format:
+   ```bash
+   python scripts/convert_labelme_to_yolo.py
+   ```
 
 ---
 
+## **4. Training YOLO for Field Detection**
+
+### Data Preparation
+1. Organize your dataset:
+```plaintext
+├── dataset/
+│   ├── crop/
+│       ├── PlayerName/
+│       ├── CourseName/
+│       ├── Score/
+│       ├── ... (other field labels that are cropped)
+│   ├── labels/          
+│       ├── train/
+│       ├── val/
+│   ├── images/          
+│       ├── train/
+│       ├── val/
+```
+
+### Training
+Example script training the YOLO model:
+```bash
+yolo task=detect mode=train data=dataset/config.yaml model=yolov8l.pt epochs=100 imgsz=640
+```
+You can change configs from the pre-configured options below:
+
+---
+
+## **5. Field Detection Script**
+`detect_fields.py`:
+```python
+from ultralytics import YOLO
+
+def detect_fields(image_path, model_path="models/yolov8l.pt"):
+    model = YOLO(model_path)
+    results = model(image_path)
+    fields = [
+        {"label": model.names[int(box[-1])], "bbox": box[:4].tolist()}
+        for box in results[0].boxes.data
+    ]
+    return fields
+```
+
+---
+
+## **6. Text Recognition with VietOCR**
+1. Use **VietOCR** to recognize Vietnamese text in each detected field.
+
+### Script
+`recognize_text.py`:
+```python
+from vietocr.tool.predictor import Predictor
+from vietocr.tool.config import Cfg
+
+def recognize_text(image_path):
+    config = Cfg.load_config_from_name("vgg_transformer")
+    model = Predictor(config)
+    return model.predict(image_path)
+```
+
+---
+
+## **7. Handling Constraints
 ### **Symbols Parsing (Constraint 2)**
 
 Symbols like `△` (triangle) and `〇` (circle) require custom parsing:
 1. **△ (Triangle)**: Represents a negative score unless a number is inside.
 2. **〇 (Circle)**: Represents a positive score with or without numbers inside.
 
-**Code Example**:
 ```python
 def parse_symbols(text):
     if "△" in text:
@@ -157,94 +234,21 @@ VietOCR recognizes Vietnamese handwriting effectively, especially when fine-tune
 
 ---
 
-## **4. Field Detection with YOLO OBB**
-
-### Training YOLOv8 OBB
-1. Prepare data with oriented bounding boxes (YOLO OBB format).
-2. Train the YOLO OBB model:
-   ```bash
-   yolo task=detect mode=train data=data.yaml model=yolov8x-obb.pt epochs=50 imgsz=640
-   ```
-3. YOLO OBB data format (`data.yaml`):
-   ```yaml
-   train: data/train/images
-   val: data/val/images
-   nc: 10  # Number of classes
-   names: ["PlayerName", "CourseName", "Score", "Total", "CaddieName", ...]
-   ```
-
-### Field Detection Script: `detect_fields.py`
-```python
-from ultralytics import YOLO
-
-def detect_fields(image_path, model_path="models/yolo_obb.pt"):
-    model = YOLO(model_path)
-    results = model(image_path)
-    fields = [
-        {"label": model.names[int(box[-1])], "bbox": box[:4].tolist()}
-        for box in results[0].boxes.data
-    ]
-    return fields
-```
-
----
-
-## **5. Text Recognition with VietOCR**
-
-### Training VietOCR
-1. Annotate text fields with tools like **Label Studio**.
-2. Train VietOCR:
-   ```python
-   from vietocr.tool.config import Cfg
-   from vietocr.model.trainer import Trainer
-
-   config = Cfg.load_config_from_name('vgg_transformer')
-   config['dataset']['train_annotation'] = 'train_annotations.txt'
-   config['dataset']['valid_annotation'] = 'valid_annotations.txt'
-   config['trainer']['epochs'] = 30
-   Trainer(config).train()
-   ```
-
-### Text Recognition Script: `recognize_text.py`
-```python
-from vietocr.tool.predictor import Predictor
-from vietocr.tool.config import Cfg
-from PIL import Image
-
-def recognize_text(image, model):
-    return model.predict(Image.fromarray(image))
-
-if __name__ == "__main__":
-    image_path = "path/to/field.jpg"
-    vietocr_model = Predictor(Cfg.load_config_from_name("vgg_transformer"))
-    text = recognize_text(cv2.imread(image_path), vietocr_model)
-    print(text)
-```
-
----
-
-## **6. Generate JSON Output**
-### Script: `generate_json.py`
+## **8. JSON Output Generation**
+Combine detection and recognition results into a structured JSON file:
+`generate_json.py`:
 ```python
 import json
 
-def write_json(fields, recognized_texts, output_path="output/scorecard.json"):
-    result = {}
-    for field, text in zip(fields, recognized_texts):
-        result[field["label"]] = text
-
-    with open(output_path, "w") as json_file:
-        json.dump(result, json_file, indent=4)
-
-if __name__ == "__main__":
-    fields = [{"label": "PlayerName", "bbox": [0, 0, 100, 50]}]
-    recognized_texts = ["John Doe"]
-    write_json(fields, recognized_texts)
+def generate_json(fields, texts, output_file="output/result.json"):
+    result = {field["label"]: text for field, text in zip(fields, texts)}
+    with open(output_file, "w") as f:
+        json.dump(result, f, indent=4)
 ```
 
 ---
 
-## **7. Google Flash API for Annotation**
+## **9. Google Flash API for Annotation**
 ### Setting Up Flash API
 1. Install **Google Cloud Vision**:
    ```bash
@@ -266,7 +270,7 @@ if __name__ == "__main__":
 
 ---
 
-## **8. Flask Deployment**
+## **10. Flask Deployment**
 Deploy with Flask for scalable usage:
 ```python
 from flask import Flask, request, jsonify
@@ -285,4 +289,3 @@ def process_scorecard():
 if __name__ == "__main__":
     app.run(debug=True)
 ```
-

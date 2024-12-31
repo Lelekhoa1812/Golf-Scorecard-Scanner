@@ -1,6 +1,6 @@
 # Train and validation image directories
 train: images/train
-val: images/val
+val: images/train
 
 # List of classes
 names:

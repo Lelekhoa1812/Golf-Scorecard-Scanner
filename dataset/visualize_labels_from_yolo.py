@@ -21,11 +21,11 @@ def draw_polygon(image, bbox, class_id, color=(0, 255, 0), thickness=2):
     """
     Draw a polygon on the image based on the bounding box.
     :param image: The image on which to draw.
-    :param bbox: Bounding box in YOLO OBB format (center_x, center_y, width, height, theta).
+    :param bbox: Bounding box in YOLO OBB format (center_x, center_y, width, height).
     :param color: Color of the polygon (green).
     :param thickness: Thickness of the polygon lines.
     """
-    center_x, center_y, width, height, theta = bbox
+    center_x, center_y, width, height = bbox
     h, w = image.shape[:2]
 
     # Convert normalized values back to absolute values
@@ -35,7 +35,7 @@ def draw_polygon(image, bbox, class_id, color=(0, 255, 0), thickness=2):
     height *= h
 
     # Calculate the four corners of the bounding box
-    angle = -theta  # YOLO OBB format uses clockwise rotation, invert for OpenCV
+    angle = 0 # -theta  # YOLO OBB format uses clockwise rotation, invert for OpenCV
     c, s = math.cos(angle), math.sin(angle)
 
     dx = width / 2
@@ -95,15 +95,15 @@ def process_labels_and_images(label_dir, image_dir, output_dir):
 
             for line in lines:
                 parts = line.strip().split()
-                # Ensure label format of class_id, center_x, center_y, width, height, theta 
-                if len(parts) != 7:
-                    print(f"Invalid label format in file: {label_file}")
+                # Ensure label format of class_id, center_x, center_y, width, height 
+                if len(parts) != 5:
+                    print(f"Invalid label format in file: {label_file}, current have {len(parts)} components")
                     continue
-
-                class_id, center_x, center_y, width, height, theta = map(float, parts)
+                
+                class_id, center_x, center_y, width, height = map(float, parts)
 
                 # Draw polygon for the bounding box
-                draw_polygon(image, (center_x, center_y, width, height, theta), class_id)
+                draw_polygon(image, (center_x, center_y, width, height), class_id)
 
             # Save the output image
             output_path = os.path.join(output_dir, f"{base_name}_debug.jpg")
@@ -115,7 +115,7 @@ if __name__ == "__main__":
     script_dir = os.path.dirname(os.path.abspath(__file__))
 
     # Set up paths relative to the script's location
-    label_dir = os.path.join(script_dir, "../dataset/yolo_labels")
+    label_dir = os.path.join(script_dir, "../dataset/labels")
     image_dir = os.path.join(script_dir, "../dataset/images/train")
     output_dir = os.path.join(script_dir, "../dataset/images/debug_label")
 

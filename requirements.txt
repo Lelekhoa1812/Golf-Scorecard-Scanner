@@ -9,7 +9,6 @@ numpy
 pandas
 shapely
 matplotlib
-google-cloud-vision
 
 # OCR Libraries
 pytesseract
@@ -19,12 +18,13 @@ vietocr
 flask
 flask-restful
 
-# Google Cloud for Flash API
+# Google Cloud for Flash API (Optional)
 google-cloud-vision
 google-cloud-storage
 
-# Label Studio for Annotation
+# Label Studio and LabelMe for Annotation
 label-studio
+labelme
 
 # Data Augmentation
 albumentations
