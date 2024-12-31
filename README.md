@@ -137,8 +137,7 @@ You can change configs from the pre-configured options below:
 
 ### **YOLOv8l:**  
 #### a. Configuration:  
-
-'''
+```yaml
 batch: 32                 # Specific batch size
 cache: "ram"              # Use RAM for caching
 device: "0"               # Use the first GPU
@@ -149,7 +148,7 @@ lr0: 0.001                # Learning rate for stability
 optimizer: "AdamW"        # Use AdamW optimizer
 augment: True             # Enable advanced augmentations
 weights: "yolov11l.pt"     # Start with pretrained weights
-'''
+```
 
 #### b. Model Evaluation:  
 <img src="imgsrc/YOLOv8l.png" alt="YOLO v8 Large Model Evaluation" style="width: 70%; max-width: 1000px;">    
@@ -158,8 +157,7 @@ weights: "yolov11l.pt"     # Start with pretrained weights
 
 ### **YOLOv11l**
 #### a. Configuration:  
-
-'''
+```yaml
 batch: 32                 # Specific batch size
 cache: "ram"              # Use RAM for caching
 device: "0"               # Use the first GPU
@@ -170,7 +168,7 @@ lr0: 0.001                # Learning rate for stability
 optimizer: "AdamW"        # Use AdamW optimizer
 augment: True             # Enable advanced augmentations
 weights: "yolov11l.pt"     # Start with pretrained weights
-'''
+```
 
 #### b. Model Evaluation:  
 <img src="imgsrc/YOLOv11l.png" alt="YOLO v11 Large Model Evaluation" style="width: 70%; max-width: 1000px;">   
@@ -365,3 +363,6 @@ def process_scorecard():
 if __name__ == "__main__":
     app.run(debug=True)
 ```
+
+
+
