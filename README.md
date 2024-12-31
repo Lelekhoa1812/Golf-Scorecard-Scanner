@@ -137,7 +137,8 @@ You can change configs from the pre-configured options below:
 
 ### **YOLOv8l:**  
 #### a. Configuration:  
-'''bash
+
+'''
 batch: 32                 # Specific batch size
 cache: "ram"              # Use RAM for caching
 device: "0"               # Use the first GPU
@@ -157,7 +158,8 @@ weights: "yolov11l.pt"     # Start with pretrained weights
 
 ### **YOLOv11l**
 #### a. Configuration:  
-'''bash
+
+'''
 batch: 32                 # Specific batch size
 cache: "ram"              # Use RAM for caching
 device: "0"               # Use the first GPU
