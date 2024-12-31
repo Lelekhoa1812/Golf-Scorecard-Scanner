@@ -273,7 +273,11 @@ def recognize_text(image, model):
     """Recognize text from an image."""
     pil_image = Image.fromarray(image)
     return model.predict(pil_image)
-```
+```  
+
+This script is inherited from:  
+- scripts/detect_fields.py 
+- labelling/thicken_grid.py
 
 **vgg_transformer model on predicting IMG_9475 with YOLOv11l:**  
 Debugged values:  
@@ -311,7 +315,7 @@ Visualization:
 
 ---
 
-## **7. Handling Constraints
+## **7. Handling Constraints**
 ### **Symbols Parsing (Constraint 2)**
 
 Symbols like `△` (triangle) and `〇` (circle) require custom parsing:
