@@ -147,7 +147,7 @@ patience: 30              # Early stopping after 30 epochs of no improvement (op
 lr0: 0.001                # Learning rate for stability
 optimizer: "AdamW"        # Use AdamW optimizer
 augment: True             # Enable advanced augmentations
-weights: "yolov11l.pt"     # Start with pretrained weights
+weights: "yolov11l.pt"    # Start with pretrained weights
 ```
 
 #### b. Model Evaluation:  
@@ -167,7 +167,7 @@ patience: 30              # Early stopping after 30 epochs of no improvement (op
 lr0: 0.001                # Learning rate for stability
 optimizer: "AdamW"        # Use AdamW optimizer
 augment: True             # Enable advanced augmentations
-weights: "yolov11l.pt"     # Start with pretrained weights
+weights: "yolov11l.pt"    # Start with pretrained weights
 ```
 
 #### b. Model Evaluation:  
