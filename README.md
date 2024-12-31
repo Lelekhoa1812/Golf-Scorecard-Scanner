@@ -214,17 +214,44 @@ In conclusion, the evaluation graphs indicate that while YOLOv8l provides faster
 ## **5. Field Detection Script**
 `detect_fields.py`:
 ```python
-from ultralytics import YOLO
-
-def detect_fields(image_path, model_path="models/yolov8l.pt"):
+    # Load the YOLO model
     model = YOLO(model_path)
+    # Run the model on the input image
     results = model(image_path)
-    fields = [
-        {"label": model.names[int(box[-1])], "bbox": box[:4].tolist()}
-        for box in results[0].boxes.data
-    ]
-    return fields
+    # Load the image for visualization
+    image = cv2.imread(image_path)
+    if image is None:
+        print(f"Error: Unable to load image from {image_path}")
+        return
+    # Iterate through the detected fields
+    for result in results[0].boxes.data:
+        x1, y1, x2, y2, conf, cls = result.tolist()
+        label = model.names[int(cls)]
+        # Draw a rectangle around the detected field
+        cv2.rectangle(image, (int(x1), int(y1)), (int(x2), int(y2)), (0, 255, 0), 2)
+        # Put the label and confidence above the rectangle
+        cv2.putText(image, f"{label} {conf:.2f}", (int(x1), int(y1) - 10),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+```  
+This script is intended to be used for both debugging and field arrangement purposes. 
+Average processing time can be varied based on your device, prediction on a Macbook Pro M1 averaging from 4 to 15 seconds for YOLOv8l model and 6 to 9 seconds on YOLOv11l model.  
+
+#### Prediction Example:
+**YOLO v8l on IMG_9475:**  
+<img src="imgsrc/IMG_9475_detection_on_YOLOv8l.png" alt="YOLO v8l on IMG_9475" style="width: 80%; max-width: 1000px;">  
+Example Output:    
 ```
+image 1/1 /Users/khoale/Downloads/GolfScoreCardScanner/dataset/images/train/IMG_9475.JPG: 480x640 4 PlayerNames, 2 CourseNames, 8 Scores, 8 Totals, 2 HoleNumbers, 1663.9ms
+Speed: 14.6ms preprocess, 1663.9ms inference, 3.8ms postprocess per image at shape (1, 3, 480, 640)
+```  
+
+**YOLO v11l on IMG_9475:**  
+<img src="imgsrc/IMG_9475_detection_on_YOLOv11l.png" alt="YOLO v11l on IMG_9475" style="width: 80%; max-width: 1000px;">  
+Example Output:  
+```
+image 1/1 /Users/khoale/Downloads/GolfScoreCardScanner/dataset/images/train/IMG_9475.JPG: 480x640 4 PlayerNames, 2 CourseNames, 8 Scores, 8 Totals, 2 HoleNumbers, 772.2ms
+Speed: 8.3ms preprocess, 772.2ms inference, 1.9ms postprocess per image at shape (1, 3, 480, 640)
+```  
 
 ---
 
