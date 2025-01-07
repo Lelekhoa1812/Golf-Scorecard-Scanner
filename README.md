@@ -339,8 +339,8 @@ Symbols like `△` (triangle) and `〇` (circle) `□` (square) require custom p
 YOLOv11l model was utilized to detect these symbols, evaluation:  
 <img src="imgsrc/Symbolv11l.png" alt="YOLO v11l Symbol Detection Metrics" style="width: 80%; max-width: 1000px;">   
 
-Symbol Detection model on image:  
-<img src="imgsrc/IMG_9425_symbol_on_YOLOv11l.png" alt="YOLO v11l Symbol Detection on IMG 9425" style="width: 80%; max-width: 1000px;"> 
+Symbol Detection model on IMG_9425:  
+<img src="imgsrc/IMG_9425_symbol_on_YOLOv11l.png" alt="YOLO v11l Symbol Detection on IMG_9425" style="width: 80%; max-width: 1000px;"> 
 
 Then further progress will try to extract the value inside these symbol
 ---
