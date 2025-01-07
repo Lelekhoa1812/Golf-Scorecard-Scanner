@@ -447,5 +447,5 @@ Find more at [Notebook](https://github.com/Lelekhoa1812/Golf-Scorecard-Scanner/b
 
 ---
 
-LATEST UPDATE ON 31 DEC 2024. 
+LATEST UPDATE ON 7 jan 2024. 
 AUTHOR: DANG KHOA LE (LIAM)
