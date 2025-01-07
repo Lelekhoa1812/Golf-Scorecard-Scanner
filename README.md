@@ -325,26 +325,25 @@ Visualization:
 ## **7. Handling Constraints**
 ### **Symbols Parsing (Constraint 2)**
 
-Symbols like `△` (triangle) and `〇` (circle) require custom parsing:
-1. **△ (Triangle)**: Represents a negative score unless a number is inside.
-2. **〇 (Circle)**: Represents a positive score with or without numbers inside.
+Symbols like `△` (triangle) and `〇` (circle) `□` (square) require custom parsing:
+1. **△ (Triangle)**: Represents a negative score (triple bogey) unless a number is inside.
+2. **〇 (Circle)**: Represents a positive score (birdie) with or without numbers inside.
+3. **□ (Square)**: Represents a bogey or +1 unless with specific number of plus point inside.
+4. **Positive (+)**: Detect positive entries separately to avoid confusion to the main score number.
+5. **Negative (-)**: Detect negative entries separately to avoid confusion to the main score number.
 
-```python
-def parse_symbols(text):
-    if "△" in text:
-        return -1 if text == "△" else int(text.strip("△")) * -1
-    elif "〇" in text:
-        return int(text.strip("〇"))
-    elif text.isdigit():
-        return int(text)
-    return None
-```
+YOLOv11l model was utilized to detect these symbols, evaluation:  
+<img src="imgsrc/Symbolv11l.png" alt="YOLO v11l Symbol Detection Metrics" style="width: 80%; max-width: 1000px;">   
 
+Symbol Detection model on image:  
+<img src="imgsrc/IMG_9425_symbol_on_YOLOv11l.png" alt="YOLO v11l Symbol Detection on IMG 9425" style="width: 80%; max-width: 1000px;"> 
+
+Then further progress will try to extract the value inside these symbol
 ---
 
 ### **Uncertainties & Corrections (Constraints 3 & 4)**
 
-- Detect **scratches/blackened slots** using a confidence threshold from YOLO's detection or additional blob detection using OpenCV.
+- Detect **scratches/blackened slots** using a confidence threshold from YOLOv11l model (yolov11lsymbol.pt).
 - **Corrected numbers**: Use contour analysis to detect overlayed characters and apply probabilistic matching.
 
 ---

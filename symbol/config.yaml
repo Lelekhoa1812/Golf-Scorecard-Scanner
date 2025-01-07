@@ -1,0 +1,10 @@
+# Train and validation image directories
+train: images/train
+val: images/train
+
+# List of classes
+names:
+  0: fixed
+  1: positive
+  2: negative
+  3: boggey
