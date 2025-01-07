@@ -64,6 +64,7 @@ GolfScorecardScanner/
 │       ├── val/
 │   ├── config.yaml      # YOLO configuration file
 ├── symbol/              # Directory training symbol detection, this has similar set-up to dataset folder
+├── data_line/           # Large folder containing dataset to train OCR based text recognition
 ├── models/              # Pre-trained models
 │   ├── yolov8l.pt       # YOLOv8 large model
 │   ├── yolov11l.pt      # YOLOv11 large model
@@ -92,6 +93,7 @@ GolfScorecardScanner/
 │       ├── labels/      # Output labels in JSON
 │       ├── yolo_labels/ # Output labels in txt
 │       ├── processed_images/ # Output img with grid thickened
+├── GolfScorecardScanner.ipynb
 ├── main.py              # Main pipeline script
 ```
 
