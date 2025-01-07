@@ -7,7 +7,7 @@ This solution uses **YOLOv8 and YOLOv11** for field detection, **VietOCR** for t
 ## **Project Overview**
 This solution:
 1. Detects fields (e.g., PlayerName, CourseName, Score ...) using **YOLOv8** and **YOLOv11** large models.
-2. Recognizes text using **VietOCR** tailored for Vietnamese handwriting.
+2. Recognizes text using **VietOCR** tailored for Vietnamese handwriting. Using Tesseract OCR to specialize detecting numeric values only.
 3. Handles multiple layouts/templates dynamically.
 4. Extracts structured data and exports it to a JSON file.
 5. Uses **LabelMe** for annotating golf scorecard fields.  
@@ -140,14 +140,14 @@ You can change configs from the pre-configured options below:
 ```yaml
 batch: 32                 # Specific batch size
 cache: "ram"              # Use RAM for caching
-device: "0"               # Use the first GPU
+device: "0"
 epochs: 300               # Train for more epochs
 imgsize: 640              
 patience: 30              # Early stopping after 30 epochs of no improvement (optional)
 lr0: 0.001                # Learning rate for stability
 optimizer: "AdamW"        # Use AdamW optimizer
 augment: True             # Enable advanced augmentations
-weights: "yolov11l.pt"    # Start with pretrained weights
+weights: "yolov8l.pt"    # Start with pretrained weights
 ```
 
 #### b. Model Evaluation:  
@@ -160,7 +160,7 @@ weights: "yolov11l.pt"    # Start with pretrained weights
 ```yaml
 batch: 32                 # Specific batch size
 cache: "ram"              # Use RAM for caching
-device: "0"               # Use the first GPU
+device: "gpu"    
 epochs: 300               # Train for more epochs
 imgsize: 640              
 patience: 30              # Early stopping after 30 epochs of no improvement (optional)
@@ -273,11 +273,18 @@ def recognize_text(image, model):
     """Recognize text from an image."""
     pil_image = Image.fromarray(image)
     return model.predict(pil_image)
+
+def recognize_numeric_text(image):
+    """Recognize numeric text using Tesseract OCR in numeric-only mode."""
+    config = r'--psm 6 -c tessedit_char_whitelist=0123456789'
+    text = pytesseract.image_to_string(image, config=config)
+    return text.strip()
 ```  
 
 This script is inherited from:  
 - scripts/detect_fields.py 
-- labelling/thicken_grid.py
+- labelling/thicken_grid.py  
+**Evaluation:** Some alphabetic-characters can be misunderstood and detected to be numeric, for numeric-only-fields (Score, Net and Total), we integrate Tesseract OCR to detect and extract only numeric values (e.g., 0-9).
 
 **vgg_transformer model on predicting IMG_9475 with YOLOv11l:**  
 Debugged values:  
@@ -434,5 +441,11 @@ if __name__ == "__main__":
     app.run(debug=True)
 ```
 
+---
 
+Find more at [Notebook](https://github.com/Lelekhoa1812/Golf-Scorecard-Scanner/blob/main/GolfScorecardScanner.ipynb)
 
+---
+
+LATEST UPDATE ON 31 DEC 2024. 
+AUTHOR: DANG KHOA LE (LIAM)
