@@ -63,10 +63,12 @@ GolfScorecardScanner/
 │       ├── train/
 │       ├── val/
 │   ├── config.yaml      # YOLO configuration file
+├── symbol/              # Directory training symbol detection, this has similar set-up to dataset folder
 ├── models/              # Pre-trained models
 │   ├── yolov8l.pt       # YOLOv8 large model
 │   ├── yolov11l.pt      # YOLOv11 large model
-│   ├── vietocr_weights.pth  # VietOCR weights
+│   ├── vietocr_weights.pth 
+│   ├── yolov11lsymbol.pt# YOLOv11 large model for symbol detection
 ├── output/              # JSON output files
 ├── scripts/             # Detection, recognition, and export scripts (UI)
 │   ├── detect_fields.py

@@ -9,7 +9,7 @@ Using CV2, techniques applied include:
 - Gray scaling
 - Contrast enhancement for better detection (a=0.8 b=0).
 - Adaptive thresholding with fine-tuned parameters (15,3)
-- Stronger dilation kernel (3,3) for more pronounced lines
+- Stronger dilation kernel (2,2) for more pronounced lines
 - Enhanced morphological operations by horizontal ((MORPH_RECT, (100, 1)) and vertical (MORPH_RECT, (1, 100)) to capture more grid details
 - Thicker grid drawing
 '''

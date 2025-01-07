@@ -9,7 +9,7 @@ def label_scorecard(image_path):
     """
     # Set the Google application credentials
     script_dir = os.path.dirname(os.path.abspath(__file__))
-    API_KEY = os.path.join(script_dir, "../key/yourapikey.json")  # Make sure to remove this when commit to GitHub
+    API_KEY = os.path.join(script_dir, "../key/hopeful-bird-445708-f2-529409e3b0ff.json")  # Make sure to remove this when commit to GitHub
     os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = API_KEY
     
     # Initialize the Vision API client
