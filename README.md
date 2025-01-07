@@ -446,7 +446,9 @@ if __name__ == "__main__":
 
 ---
 
-Find more at [Notebook](https://github.com/Lelekhoa1812/Golf-Scorecard-Scanner/blob/main/GolfScorecardScanner.ipynb)
+Find more at [Notebook](https://github.com/Lelekhoa1812/Golf-Scorecard-Scanner/blob/main/GolfScorecardScanner.ipynb).  
+Visualizing Overall Detection Sketch on IMG_9425:  
+<img src="imgsrc/overall_detection_on_IMG_9425.png" alt="Overall detection sketch on IMG_9425" style="width: 80%; max-width: 1000px;">    
 
 ---
 
