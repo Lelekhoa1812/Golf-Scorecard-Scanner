@@ -337,12 +337,199 @@ Visualization:
 **Evaluation:** Predicted text may not being correct due to user poor handwriting. Improve handwriting for better accuracy.  
 
 ---
-## **7. Digit Recognition with MNIST CRNN**
+## **7. Usage of Qwen2.5-VL for Text Validation (with prompt)**
+With the bbox detected for the `PlayerName` class by YOLOv11l model, we crop the sections, and predict with **VietOCR** and **PaddleOCR** (optional for a backup in case VietOCR may fails). Using the text prediction and cropped image results previously, we prompt Qwen for validation and fine-tuning.  
+
+Example usage of pipeline integrating **VietOCR** and **PaddleOCR** with **Gwen** for validation:
+```python
+if label == "PlayerName":
+    # Prior 1 using VietOCR
+    vietocr_result = recognize_text(field_image, vietocr_model)
+    vietocr_result_cleaned = clean_text(vietocr_result)
+    vietocr_result_formated = format_output(label, vietocr_result_cleaned)
+    # Prior 2 using PaddleOCR
+    paddle_result = paddle_text(field_image)
+    paddle_result_cleaned = clean_text(paddle_result)
+    paddle_result_formated = format_output(label, paddle_result_cleaned)
+    # Prior 3 support with Qwen
+    qwen_result = qwen_text(field_image, vietocr_result_formated, paddle_result_formated)
+    text = qwen_result
+```
+
+Using Gwen with Huggingface API inference to request prompt and get response from Gwen model (specific):  
+```python
+from huggingface_hub import InferenceClient
+import json
+import base64
+import requests
+import time
+# Authenticate programmatically (your Hugging Face token can be found at Settings / Acess Token)
+API_URL = "https://api-inference.huggingface.co/models/Qwen/Qwen2.5-72B-Instruct"  # Large model for general
+HUGGING_FACE_TOKEN = "your-api-token"
+HEADERS = {
+    "Authorization": f"Bearer {HUGGING_FACE_TOKEN}",
+    "Content-Type": "application/json"
+}
+max_retries = 10 # change allowance
+attempt = 1      # counter at index 1
+# Predict
+def qwen_text(image, vietocr_result, paddle_result):
+    """
+    Perform text recognition using Qwen2.5 through Hugging Face Inference API.
+    :param image: Input image (as a NumPy array).
+    :return: Recognized text as a string.
+    """
+    # Convert the image to RGB if necessary
+    if len(image.shape) == 2:  # Grayscale
+        image = cv2.cvtColor(image, cv2.COLOR_GRAY2RGB)
+    elif image.shape[2] == 4:  # RGBA to RGB
+        image = cv2.cvtColor(image, cv2.COLOR_RGBA2RGB)
+    # Convert to PIL Image for Qwen processor
+    pil_image = Image.fromarray(image)
+    # Prepare the input prompt (JSON) and attach the image
+    with open("temp_image.jpg", "wb") as temp_file:
+        pil_image.save(temp_file, format="JPEG")
+    # Combine the image (Base64) and prompt into a single string input
+    with open("temp_image.jpg", "rb") as image_file:
+        encoded_image = base64.b64encode(image_file.read()).decode("utf-8")
+    # Build the Qwen prompt
+    if vietocr_result.strip():
+        print(f"VietOCR predict this text, as {vietocr_result}, continue with Qwen verification...")
+        prompt = (
+            f"data:image/jpeg;base64,{encoded_image}\n"
+            f"Extract and verify the player names from the image below. The prediction is '{vietocr_result}'. "
+            f"If the name contain 'A' or 'A.' at the beginning, following by the name, strip that out. If not, skip it. We only keep the name after the 'A' initial. "
+            f"Only if the name is any of the following 'An', 'Anh', 'Ánh', 'Ảnh', 'Ân', 'Ái', then the name would not stripping out the first 'A' initial. "
+            f"The name is in Vietnamese. Correct or validate the prediction and return only the names in a concise. If the name doesn't match Vietnamese language, try to find the closest name, you cannot leave this as No Name or None etc, try to find the closest match. "
+            f"You are prompted to provide the final answer in this format: "
+            f"final_answer: name "
+            f"No more lines or texts after this line could be provided after the above final_answer result as this already meant to be the last line of the response."
+        )
+        USING_API = API_URL
+    elif  paddle_result.strip():
+        print(f"PaddleOCR predict this text, as {paddle_result}, continue with Qwen verification...")
+        prompt = (
+            f"data:image/jpeg;base64,{encoded_image}\n"
+            f"Extract and verify the player names from the image below. The prediction is '{paddle_result}'. "
+            f"If the name contain 'A' or 'A.' at the beginning, following by the name, strip that out. If not, skip it. We only keep the name after the 'A' initial. "
+            f"Only if the name is any of the following 'An', 'Anh', 'Ánh', 'Ảnh', 'Ân', 'Ái', then the name would not stripping out the first 'A' initial. "
+            f"The name is in Vietnamese. Correct or validate the prediction and return only the names in a concise. If the name doesn't match Vietnamese language, try to find the closest name, you cannot leave this as No Name or None etc, try to find the closest match. "
+            f"You are prompted to provide the final answer in this format: "
+            f"final_answer: name "
+            f"No more lines or texts after this line could be provided after the above final_answer result as this already meant to be the last line of the response."
+        )
+        USING_API = API_URL
+    else: # Models cannot detect text so using Gwen OCR based model
+        print("None of OCR model can predict this text, continue with Qwen extraction...")
+        prompt = (
+            f"data:image/jpeg;base64,{encoded_image}\n"
+            f"Extract all valid player names from the image below in Vietnamese language. "
+            f"If names cannot be detected, provide the best possible attempt at reading text correctly. "
+            f"You are prompted to provide the final answer in this format below: "
+            f"final_answer: name "
+            f"No more lines or texts after this line could be provided after the above final_answer result as this already meant to be the last line of the response."
+        )
+        USING_API = "https://api-inference.huggingface.co/models/Qwen/Qwen2-VL-7B-Instruct"
+    payload = {"inputs": prompt}
+    # Send the POST request (attempt {allowance} time if not responding, else quit)
+    for attempt in range(max_retries):
+        response = requests.post(
+            USING_API,
+            headers=HEADERS,
+            data=json.dumps(payload),
+            timeout=90
+        ) # Above set time out to 90s, large model could be busy so terminate the query without response after 90s
+        # Handle and parse the response
+        if response.status_code == 200:
+            result = response.json()
+            if isinstance(result, list) and len(result) > 0:
+                # Assuming the generated text is in the first dictionary of the list
+                text = result[0].get("generated_text", "")
+                print(f"Qwen response with {text}") # Debug (should be commented)
+                attempt = 1 # Reset
+                cleaned = clean_qwen_response(text)
+                return qwen_find_name(cleaned) # Filtering out base response and match closest name
+            else:
+                print("Unexpected API response format.")
+        elif attempt < max_retries - 1:
+            attempt += 1 # Raise attempt counter
+            print(f"Cannot catch response from Qwen server, this is the attempt {attempt}/{max_retries} sleep for 5s...")
+            time.sleep(5)  # Wait 5 seconds before retrying
+        else:
+            print(f"Error {response.status_code}: {response.text}") # Iterate these as print error instead of raising error to allow the stream continue until allowance exhausted
+    print(f"Failed after {max_retries} attempts. Last response: {response.text}")
+    return "Qwen cannot process this text"
+```     
+However, Gwen response would likely being low accurate, and irrelevant, therefore, we need to fine-tune it. Firstly, filtering out redundant body from response. Example usages:
+```python
+def clean_qwen_response(response_text):
+    # Use regex to find all occurrences of 'final_answer' with the correct format
+    matches = re.findall(r"final_answer:\s*([a-zA-ZÀ-ỹ\s]+)", response_text, re.DOTALL)
+    if matches:
+        # Get the last match and clean it further
+        final_name = matches[-1].strip()
+        # Remove "final" or "final_answer" from the extracted name, if present
+        clean_name = re.sub(r"\b(final|final_answer)\b", "", final_name, flags=re.IGNORECASE).strip()
+        return clean_name
+    else:
+        # Return a placeholder if no valid 'final_answer' is found
+        return "[Name cannot be found, try again]"
+```
+
+Optionally, we can find the closest matching Vietnamese name in case the prediction could sightly off. We can build prompt query such as this:  
+```python
+attempt_find = 1 # Prefix
+def qwen_find_name(name):
+    #### With OCR assistance
+    print("Qwen attempting to find the closest Vietnamese name...")
+    prompt = (
+        f"Given this name: '{name}'. "
+        f"You will have to examine whether the name '{name}' is a Vietnamese langugage - name. "
+        f"If it doesn't seem like a Vietnamese name, try to provide a Vietnamese name that matches the most with this name, for instance the name Hæn is closest to the name Hân. "
+        f"If you think this name is a Vietnamese name already, just return the name. "
+        f"You are prompted to provide the final answer in this format: "
+        f"final_answer: name "
+        f"No more lines or texts after this line could be provided after the above final_answer result as this already meant to be the last line of the response."
+    )
+    # Load and construct prompt
+    payload = {"inputs": prompt}
+    # Send the POST request (attempt {allowance} time if not responding, else quit)
+    for attempt_find in range(max_retries):
+        response = requests.post(
+            API_URL,
+            headers=HEADERS,
+            data=json.dumps(payload),
+            timeout=90
+        ) # Above set time out to 90s, large model could be busy so terminate the query without response after 90s
+        # Handle and parse the response
+        if response.status_code == 200:
+            result = response.json()
+            if isinstance(result, list) and len(result) > 0:
+                # Assuming the generated text is in the first dictionary of the list
+                text = result[0].get("generated_text", "")
+                print(f"Qwen-find-name response with {text}") # Debug (should be commented)
+                attempt_find = 1 # Reset
+                return clean_qwen_response(text) # Filtering out base response
+            else:
+                print("Unexpected API response format.")
+        elif attempt_find < max_retries - 1:
+            attempt_find += 1 # Raise attempt counter
+            print(f"Cannot catch response from Qwen server, this is the attempt {attempt_find}/{max_retries} sleep for 5s...")
+            time.sleep(5)  # Wait 5 seconds before retrying
+        else:
+            print(f"Error {response.status_code}: {response.text}") # Iterate these as print error instead of raising error to allow the stream continue until allowance exhausted
+    print(f"Failed after {max_retries} attempts. Last response: {response.text}")
+    return name # Cannot process so return base name
+```
+
+---
+
+## **8. Digit Recognition with MNIST CRNN**
 Find more on the procedures to train MNIST CRNN model for handwritten digit recognition via [MNIST CRNN](https://github.com/Lelekhoa1812/Golf-Scorecard-Scanner/blob/main/mnist/README.md).
 
 ---
 
-## **8. Handling Constraints**
+## **9. Handling Constraints**
 ### **Symbols Parsing (Constraint 2)**
 
 Symbols like `△` (triangle) and `〇` (circle) `□` (square) require custom parsing:
@@ -404,7 +591,7 @@ VietOCR recognizes Vietnamese handwriting effectively, especially when fine-tune
 
 ---
 
-## **9. JSON Output Generation**
+## **10. JSON Output Generation**
 Combine detection and recognition results into a structured JSON file:
 `generate_json.py`:
 ```python
@@ -418,7 +605,7 @@ def generate_json(fields, texts, output_file="output/result.json"):
 
 ---
 
-## **10. Google Flash API for Annotation**
+## **11. Google Flash API for Annotation**
 ### Setting Up Flash API
 1. Install **Google Cloud Vision**:
    ```bash
@@ -440,7 +627,7 @@ def generate_json(fields, texts, output_file="output/result.json"):
 
 ---
 
-## **11. Flask Deployment**
+## **12. Flask Deployment**
 Deploy with Flask for scalable usage:
 ```python
 from flask import Flask, request, jsonify
