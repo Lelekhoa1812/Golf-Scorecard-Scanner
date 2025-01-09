@@ -54,11 +54,11 @@ model_final.summary()
 # Compile Model
 model_final.compile(
     loss={"ctc": lambda y_true, y_pred: y_pred},
-    optimizer=keras.optimizers.Adam(learning_rate=0.0001),
+    optimizer = keras.optimizers.Adam(learning_rate=0.000005), # Lower learning rate for more stable train in case it stop unexpectably
 )
 # Early Stopping and Learning Rate Schedule
 early_stopping = keras.callbacks.EarlyStopping(
-    monitor="val_loss", patience=5, restore_best_weights=True
+    monitor="val_loss", patience=20, restore_best_weights=True
 )
 lr_schedule = keras.callbacks.ReduceLROnPlateau(
     monitor="val_loss", factor=0.5, patience=3, min_lr=1e-6, verbose=1
@@ -68,7 +68,7 @@ model_final.fit(
     x=[train_x, train_y, train_input_len, train_label_len],
     y=train_output,
     validation_data=([valid_x, valid_y, valid_input_len, valid_label_len], valid_output),
-    epochs=200,
+    epochs=60,
     batch_size=128,
     callbacks=[early_stopping, lr_schedule],
 )
