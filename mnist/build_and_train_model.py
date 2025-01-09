@@ -83,4 +83,4 @@ model_final.fit(
     batch_size=128,
     callbacks=[early_stopping]  # Include early stopping to monitor val_loss
 )
-model.save('../models/')
+model.save('../models/mnistrcnn_m1.h5')

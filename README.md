@@ -271,7 +271,7 @@ Speed: 8.3ms preprocess, 772.2ms inference, 1.9ms postprocess per image at shape
 
 ---
 
-## **6. Text Recognition with VietOCR**
+## **6. Text Recognition with VietOCR (for alphabetics) and TesseractOCR (for numerics)**
 1. Use **VietOCR** to recognize Vietnamese text in each detected field.
 
 ### Script
@@ -611,7 +611,7 @@ def generate_json(fields, texts, output_file="output/result.json"):
    ```bash
    pip install google-cloud-vision
    ```
-2. Use Flash API to label data:
+2. Use Flash API to label data, example usages:
    ```python
    from google.cloud import vision
 
@@ -624,6 +624,8 @@ def generate_json(fields, texts, output_file="output/result.json"):
        response = client.text_detection(image=image)
        return response.text_annotations
    ```
+    Or for more details and complete usage, [visit](https://github.com/Lelekhoa1812/Golf-Scorecard-Scanner/blob/main/dataset/auto_label.py)
+
 
 ---
 
@@ -655,5 +657,5 @@ Visualizing Overall Detection Sketch on IMG_9425:
 
 ---
 
-LATEST UPDATE ON 7 jan 2024. 
+LATEST UPDATE ON 9 jan 2024. 
 AUTHOR: DANG KHOA LE (LIAM)
