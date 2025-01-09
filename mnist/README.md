@@ -33,6 +33,9 @@ Visualize the processed images to ensure proper preprocessing and labeling.
 - Reconstruct images from flattened data.
 - Display images with corresponding labels using Matplotlib.
 
+Example:    
+<img src="../imgsrc/mnist_visualization_post_process.png" alt="Post Process Visualization" style="width: 80%; max-width: 1000px;">   
+
 [Script](https://github.com/Lelekhoa1812/Golf-Scorecard-Scanner/blob/main/mnist/visualize_preprocess.py)
 
 ---
@@ -45,6 +48,15 @@ Split the processed dataset into training and validation sets.
 - Resize images to model-compatible dimensions.
 - Normalize image data and split into train/test sets.
 
+Example Output:
+```
+Number of images found:  11004
+Number of labels found:  11004
+Number of unique characters:  10
+Characters present:  {'1', '9', '3', '0', '6', '2', '5', '7', '4', '8'}
+
+train_size 8803   valid_size 2201
+```  
 [Script](https://github.com/Lelekhoa1812/Golf-Scorecard-Scanner/blob/main/mnist/load_and_split.py)
 
 ---
@@ -84,6 +96,7 @@ GolfScoreCardScanner/
 │   ├── load_and_split.py          # Load data and split to train/test sets
 │   ├── prepare_label.py           # Prepare labelling for CTC loss
 │   ├── build_and_train_model.py   # Build and config training model for MNIST RCNN
+│   ├── validation_test.py         # Some validation of model prediction on test set
 ├── synthetic_digits/              # Dataset of CSV, image and labels synthetically created
 └── README.md                      # Project documentation
 ```
@@ -110,6 +123,7 @@ GolfScoreCardScanner/
    python mnist/load_and_split.py
    python mnist/prepare_label.py
    python mnist/build_and_train_model.py
+   python mnist/validation_test.py
    ```
 
 ---
@@ -117,4 +131,5 @@ GolfScoreCardScanner/
 ## Acknowledgments
 
 - Synthetic data generation was inspired by [Multi-digit MNIST Generator](https://github.com/mrzaizai2k/Multi-digit-images-generator-MNIST-/blob/main/prepare_multi_digit.py).  
-- Preprocessing techniques were adapted from [CRNN-CTC PyTorch](https://github.com/dredwardhyde/crnn-ctc-loss-pytorch).
+- Preprocessing techniques were adapted from [CRNN-CTC PyTorch](https://github.com/dredwardhyde/crnn-ctc-loss-pytorch).  
+- MNIST CRNN sample data is from [Kaggle CRNN for Mnist](https://www.kaggle.com/code/duansm/crnn-for-mnist/data)

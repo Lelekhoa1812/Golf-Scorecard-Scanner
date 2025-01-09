@@ -8,7 +8,7 @@ This solution uses **YOLOv8 and YOLOv11** for field detection, **VietOCR** for t
 This solution:
 1. Detects fields (e.g., PlayerName, CourseName, Score ...) using **YOLOv8** and **YOLOv11** large models.
 2. Recognizes text using **VietOCR** tailored for Vietnamese handwriting, with back up verification using **Qwen2.5-VL** model. Using PyTesseract OCR to specialize detecting numeric values only.
-3. Opt in customized **MNIST RCNN** model for handwriting numeric recognition
+3. Opt in customized **MNIST CRNN** model for handwriting numeric recognition
 3. Handles multiple layouts/templates dynamically.
 4. Extracts structured data and exports it to a JSON file.
 5. Uses **LabelMe** for annotating golf scorecard fields.  
@@ -96,13 +96,13 @@ GolfScorecardScanner/
 │       ├── labels/                # Output labels in JSON
 │       ├── yolo_labels/           # Output labels in txt
 │       ├── processed_images/      # Output img with grid thickened
-├── mnist/                         # Scripts used for digit training with MNIST RCNN
+├── mnist/                         # Scripts used for digit training with MNIST CRNN
 │   ├── synthetic_digit.py         # Create synthetic mnist data
 │   ├── preprocess_augmentation.py # preprocess and apply augmentation 
 │   ├── visualize_preprocess.py    # Visualization
 │   ├── load_and_split.py          # Load data and split to train/test sets
 │   ├── prepare_label.py           # Prepare labelling for CTC loss
-│   ├── build_and_train_model.py   # Build and config training model for MNIST RCNN
+│   ├── build_and_train_model.py   # Build and config training model for MNIST CRNN
 ├── synthetic_digits/              # Dataset of CSV, image and labels synthetically created
 ├── processed_digits/              # Dataset of synthetic CSV, image and labels that is processed
 ├── GolfScorecardScanner.ipynb     # Notebook for all procedures
@@ -337,8 +337,8 @@ Visualization:
 **Evaluation:** Predicted text may not being correct due to user poor handwriting. Improve handwriting for better accuracy.  
 
 ---
-## **7. Digit Recognition with MNIST RCNN**
-Find more on the procedures to train MNIST RCNN model for handwritten digit recognition via [MNIST RCNN](https://github.com/Lelekhoa1812/Golf-Scorecard-Scanner/blob/main/mnist/README.md).
+## **7. Digit Recognition with MNIST CRNN**
+Find more on the procedures to train MNIST CRNN model for handwritten digit recognition via [MNIST CRNN](https://github.com/Lelekhoa1812/Golf-Scorecard-Scanner/blob/main/mnist/README.md).
 
 ---
 
