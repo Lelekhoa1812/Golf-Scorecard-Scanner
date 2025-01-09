@@ -93,6 +93,9 @@ GolfScorecardScanner/
 │       ├── labels/      # Output labels in JSON
 │       ├── yolo_labels/ # Output labels in txt
 │       ├── processed_images/ # Output img with grid thickened
+├── mnist/               # Scripts used for digit training with MNIST RCNN
+├── synthetic_digits/    # Dataset of CSV, image and labels synthetically created
+├── processed_digits/    # Dataset of synthetic CSV, image and labels that is processed
 ├── GolfScorecardScanner.ipynb
 ├── main.py              # Main pipeline script
 ```

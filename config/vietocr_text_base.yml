@@ -1,0 +1,59 @@
+vocab: 'aAàÀảẢãÃáÁạẠăĂằẰẳẲẵẴắẮặẶâÂầẦẩẨẫẪấẤậẬbBcCdDđĐeEèÈẻẺẽẼéÉẹẸêÊềỀểỂễỄếẾệỆfFgGhHiIìÌỉỈĩĨíÍịỊjJkKlLmMnNoOòÒỏỎõÕóÓọỌôÔồỒổỔỗỖốỐộỘơƠờỜởỞỡỠớỚợỢpPqQrRsStTuUùÙủỦũŨúÚụỤưƯừỪửỬữỮứỨựỰvVwWxXyYỳỲỷỶỹỸýÝỵỴzZ'
+
+device: cuda:0
+
+seq_modeling: transformer
+transformer:  
+    d_model: 256
+    nhead: 8
+    num_encoder_layers: 6
+    num_decoder_layers: 6
+    dim_feedforward: 2048
+    max_seq_length: 1024
+    pos_dropout: 0.1
+    trans_dropout: 0.1
+
+cnn:
+  name: resnet  # Backbone type for CNN
+  pretrained: true  # Use pre-trained weights for the CNN
+  n_channels: 3  # Input channels (3 for RGB images)
+
+backbone: resnet  # Define the CNN backbone here
+
+optimizer:
+    max_lr: 0.0003 
+    pct_start: 0.1
+
+trainer:
+    batch_size: 32
+    print_every: 200
+    valid_every: 4000
+    iters: 100000
+    export: ./weights/vietocr_text_weight.pth
+    checkpoint: ./checkpoint/vietocr_text_checkpoint.pth
+    log: ./train.log
+    metrics: null
+
+dataset:    
+    name: data
+    data_root: ./img/
+    train_annotation: annotation_train.txt
+    valid_annotation: annotation_val_small.txt
+    image_height: 32
+    image_min_width: 32
+    image_max_width: 512
+
+dataloader:
+    num_workers: 3
+    pin_memory: True
+
+aug:
+    image_aug: true
+    masked_language_model: true
+
+predictor:
+    beamsearch: False
+
+quiet: False
+
+pretrain: https://github.com/pbcquoc/vietocr/releases/download/weights/transformerocr.pth
