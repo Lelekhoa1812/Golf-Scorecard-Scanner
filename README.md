@@ -7,11 +7,14 @@ This solution uses **YOLOv8 and YOLOv11** for field detection, **VietOCR** for t
 ## **Project Overview**
 This solution:
 1. Detects fields (e.g., PlayerName, CourseName, Score ...) using **YOLOv8** and **YOLOv11** large models.
-2. Recognizes text using **VietOCR** tailored for Vietnamese handwriting. Using Tesseract OCR to specialize detecting numeric values only.
+2. Recognizes text using **VietOCR** tailored for Vietnamese handwriting, with back up verification using **Qwen2.5-VL** model. Using PyTesseract OCR to specialize detecting numeric values only.
+3. Opt in customized **MNIST RCNN** model for handwriting numeric recognition
 3. Handles multiple layouts/templates dynamically.
 4. Extracts structured data and exports it to a JSON file.
 5. Uses **LabelMe** for annotating golf scorecard fields.  
-**Optionally:** Use Flash Vision API with provided script and instruction in this project for direct data extraction.
+**Optionally:** 
+- Use Flash Vision API with provided script and instruction in this project for direct data extraction.  
+- Use Open AI API to extract data (this will need pricing optimization and resource management). Calculation to be: Cost per image = (100/1M)× price per 1M tokens. Since it's estimated that we are using approximately 100-200 tokens for each call individually, with cost on average of $2.5 USD per 1M tokens. Find more at [Open AI Integration Pricing](https://openai.com/api/pricing/).
 
 ---
 
@@ -56,48 +59,54 @@ GolfScorecardScanner/
 │       ├── CourseName/
 │       ├── Score/
 │       ├── ... (other field labels that are cropped)
-│   ├── labels/          # LabelMe JSON files
+│   ├── labels/                    # LabelMe JSON files
 │       ├── train/
 │       ├── val/
-│   ├── images/          # Source images
+│   ├── images/                    # Source images
 │       ├── train/
 │       ├── val/
-│   ├── config.yaml      # YOLO configuration file
-├── symbol/              # Directory training symbol detection, this has similar set-up to dataset folder
-├── data_line/           # Large folder containing dataset to train OCR based text recognition
-├── models/              # Pre-trained models
-│   ├── yolov8l.pt       # YOLOv8 large model
-│   ├── yolov11l.pt      # YOLOv11 large model
+│   ├── config.yaml                # YOLO configuration file
+├── symbol/                        # Directory training symbol detection, this has similar set-up to dataset folder
+├── data_line/                     # Large folder containing dataset to train OCR based text recognition
+├── models/                        # Pre-trained models
+│   ├── yolov8l.pt                 # YOLOv8 large model
+│   ├── yolov11l.pt                # YOLOv11 large model
 │   ├── vietocr_weights.pth 
-│   ├── yolov11lsymbol.pt# YOLOv11 large model for symbol detection
-├── output/              # JSON output files
-├── scripts/             # Detection, recognition, and export scripts (UI)
+│   ├── yolov11lsymbol.pt          # YOLOv11 large model for symbol detection
+├── output/                        # JSON output files
+├── scripts/                       # Detection, recognition, and export scripts (UI)
 │   ├── detect_fields.py
 │   ├── recognize_text.py
 │   ├── generate_json.py
 │   ├── utils.py
-├── train/               # YOLO OBB Training scripts and configurations
+├── train/                         # YOLO OBB Training scripts and configurations
 │   ├── yolo_train.py
 │   ├── hyp.yaml
-├── labelling/           # Scripts aid in Flash Vision API detection
-│   ├── thicken_grid.py  # Script that thicken the grid for better data extraction
-│   ├── auto_label.py    # Script to extract data from input images into JSON using Flash Vision API
-│   ├── convert_json_to_yolo.py # Script directly convert necessitated fields from JSON file into txt format for YOLO training
+├── labelling/                     # Scripts aid in Flash Vision API detection
+│   ├── thicken_grid.py            # Script that thicken the grid for better data extraction
+│   ├── auto_label.py              # Script to extract data from input images into JSON using Flash Vision API
+│   ├── convert_json_to_yolo.py    # Script directly convert necessitated fields from JSON file into txt format for YOLO training
 │   ├── visualize_labels_from_json.py # Script visualize debug image detected from Flash Vision JSON file
 │   ├── visualize_labels_from_json.py # Script visualize debug image detected from YOLO txt conversion
-├── key/                 # Your credential key from Google Flash Vision
-├── data/                # Input and output directory from using Flash Vision
-│   ├── train/           # All be used for training
-│       ├── debug_label/ # Visualized images
-│       ├── images/      # Source of input
-│       ├── labels/      # Output labels in JSON
-│       ├── yolo_labels/ # Output labels in txt
-│       ├── processed_images/ # Output img with grid thickened
-├── mnist/               # Scripts used for digit training with MNIST RCNN
-├── synthetic_digits/    # Dataset of CSV, image and labels synthetically created
-├── processed_digits/    # Dataset of synthetic CSV, image and labels that is processed
-├── GolfScorecardScanner.ipynb
-├── main.py              # Main pipeline script
+├── key/                           # Your credential key from Google Flash Vision
+├── data/                          # Input and output directory from using Flash Vision
+│   ├── train/                     # All be used for training
+│       ├── debug_label/           # Visualized images
+│       ├── images/                # Source of input
+│       ├── labels/                # Output labels in JSON
+│       ├── yolo_labels/           # Output labels in txt
+│       ├── processed_images/      # Output img with grid thickened
+├── mnist/                         # Scripts used for digit training with MNIST RCNN
+│   ├── synthetic_digit.py         # Create synthetic mnist data
+│   ├── preprocess_augmentation.py # preprocess and apply augmentation 
+│   ├── visualize_preprocess.py    # Visualization
+│   ├── load_and_split.py          # Load data and split to train/test sets
+│   ├── prepare_label.py           # Prepare labelling for CTC loss
+│   ├── build_and_train_model.py   # Build and config training model for MNIST RCNN
+├── synthetic_digits/              # Dataset of CSV, image and labels synthetically created
+├── processed_digits/              # Dataset of synthetic CSV, image and labels that is processed
+├── GolfScorecardScanner.ipynb     # Notebook for all procedures
+├── main.py                        # Main pipeline script
 ```
 
 ---
@@ -154,7 +163,7 @@ patience: 30              # Early stopping after 30 epochs of no improvement (op
 lr0: 0.001                # Learning rate for stability
 optimizer: "AdamW"        # Use AdamW optimizer
 augment: True             # Enable advanced augmentations
-weights: "yolov8l.pt"    # Start with pretrained weights
+weights: "yolov8l.pt"     # Start with pretrained weights
 ```
 
 #### b. Model Evaluation:  
@@ -328,8 +337,12 @@ Visualization:
 **Evaluation:** Predicted text may not being correct due to user poor handwriting. Improve handwriting for better accuracy.  
 
 ---
+## **7. Digit Recognition with MNIST RCNN**
+Find more on the procedures to train MNIST RCNN model for handwritten digit recognition via [MNIST RCNN](https://github.com/Lelekhoa1812/Golf-Scorecard-Scanner/blob/main/mnist/README.md).
 
-## **7. Handling Constraints**
+---
+
+## **8. Handling Constraints**
 ### **Symbols Parsing (Constraint 2)**
 
 Symbols like `△` (triangle) and `〇` (circle) `□` (square) require custom parsing:
@@ -391,7 +404,7 @@ VietOCR recognizes Vietnamese handwriting effectively, especially when fine-tune
 
 ---
 
-## **8. JSON Output Generation**
+## **9. JSON Output Generation**
 Combine detection and recognition results into a structured JSON file:
 `generate_json.py`:
 ```python
@@ -405,7 +418,7 @@ def generate_json(fields, texts, output_file="output/result.json"):
 
 ---
 
-## **9. Google Flash API for Annotation**
+## **10. Google Flash API for Annotation**
 ### Setting Up Flash API
 1. Install **Google Cloud Vision**:
    ```bash
@@ -427,7 +440,7 @@ def generate_json(fields, texts, output_file="output/result.json"):
 
 ---
 
-## **10. Flask Deployment**
+## **11. Flask Deployment**
 Deploy with Flask for scalable usage:
 ```python
 from flask import Flask, request, jsonify

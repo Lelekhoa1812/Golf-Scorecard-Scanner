@@ -13,6 +13,13 @@ matplotlib
 # OCR Libraries
 pytesseract
 vietocr
+easyocr
+paddlepaddle
+paddleocr
+transformers
+datasets
+qwen-vl-utils
+huggingface_hub
 
 # Flask for API
 flask
@@ -22,9 +29,19 @@ flask-restful
 google-cloud-vision
 google-cloud-storage
 
-# Label Studio and LabelMe for Annotation
+# Annotation Tools
 label-studio
 labelme
 
 # Data Augmentation
 albumentations
+
+# TensorFlow and Keras (for MNIST)
+tensorflow
+keras
+
+# Image Conversion
+pillow_heif
+
+# OpenAI API
+openai==0.28
