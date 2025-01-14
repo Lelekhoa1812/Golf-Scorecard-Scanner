@@ -2,4 +2,4 @@
 key/
 
 # Ignore the models folder
-models/
+models/vgg_transformer.pth

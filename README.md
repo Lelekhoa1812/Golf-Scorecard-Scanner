@@ -71,8 +71,9 @@ GolfScorecardScanner/
 ├── models/                        # Pre-trained models
 │   ├── yolov8l.pt                 # YOLOv8 large model
 │   ├── yolov11l.pt                # YOLOv11 large model
-│   ├── vietocr_weights.pth 
 │   ├── yolov11lsymbol.pt          # YOLOv11 large model for symbol detection
+│   ├── mnistrcnn_m1.keras         # MNIST CRNN model 
+│   ├── mnist_crnn_yolov11s.pt     # MNIST YOLO model
 ├── output/                        # JSON output files
 ├── scripts/                       # Detection, recognition, and export scripts (UI)
 │   ├── detect_fields.py

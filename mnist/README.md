@@ -211,7 +211,9 @@ GolfScoreCardScanner/
 │   ├── build_and_train_model.py   # Build and config training model for MNIST CRNN
 │   ├── validation_test.py         # Some validation of model prediction on test set
 ├── synthetic_digits/              # Dataset of CSV, image and labels synthetically created
-├── models/                        # Place where the trained model being stored
+├── models/                        
+│   ├── mnistrcnn_m1.keras         # MNIST CRNN model 
+│   ├── mnist_crnn_yolov11s.pt     # MNIST YOLO model
 ├── MNIST_CRNN.ipynb               # MNIST notebook
 └── README.md                      # Project documentation
 ```
